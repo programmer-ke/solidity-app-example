@@ -15,7 +15,7 @@ contract WavePortal {
     address waver;
     string message;
     uint256 timestamp;
-  };
+  }
 
   // hold a list of waves
   Wave[] waves;
