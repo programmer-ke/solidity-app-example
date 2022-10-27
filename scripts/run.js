@@ -1,7 +1,4 @@
 const main = async () => {
-    // get wallet address of deployer (hardhat automatically captures it)
-    // also get wallet of another random person (hardhat's environment provides this?)
-    const [owner, randomPerson] = await hre.ethers.getSigners();
     // compiles contract and places it in artifacts directory
     const WaveContractFactory = await hre.ethers.getContractFactory("WavePortal");
     // Creates local ethereum network and deploys contract
@@ -11,19 +8,19 @@ const main = async () => {
     await waveContract.deployed();
 
     console.log("Contract deployed to:", waveContract.address);
-    console.log("Contract deployed by:", owner.address);
 
     let waveCount = await waveContract.getTotalWaves();
+    console.log("totalWaves", waveCount.toNumber());
 
-    let waveTxn = await waveContract.wave();
-    await waveTxn.wait();
+    let waveTxn = await waveContract.wave("Some message");
+    await waveTxn.wait();  // wait for txn to be mined
 
-    waveCount = await waveContract.getTotalWaves();
+    const [_, randomPerson] = await hre.ethers.getSigners();
+    waveTxn = await waveContract.connect(randomPerson).wave("Some other message");
+    await waveTxn.wait(); // wait for txn to be mined
 
-    waveTxn = await waveContract.connect(randomPerson).wave();
-    await waveTxn.wait();
-
-    waveCount = await waveContract.getTotalWaves();
+    let allWaves = await waveContract.getAllWaves();
+    console.log(allWaves);
 };
 
 const runMain = async () => {
