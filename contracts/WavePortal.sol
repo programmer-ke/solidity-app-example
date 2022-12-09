@@ -20,7 +20,7 @@ contract WavePortal {
   // hold a list of waves
   Wave[] waves;
     
-  constructor () {
+  constructor () payable {
     console.log("Let's print some money!");
   }
 
@@ -33,6 +33,14 @@ contract WavePortal {
 
     // trigger a NewWave event
     emit NewWave(msg.sender, block.timestamp, _message);
+
+    uint256 prizeAmount = 0.0001 ether;
+    require(
+	    prizeAmount <= address(this).balance,
+	    "Insufficient balance in WaveContract"
+    );
+    (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+    require(success, "Failed to send money from contract to sender");
   }
 
   // A function that returns all the waves
