@@ -33,8 +33,8 @@ contract WavePortal {
 
   function wave(string memory _message) public {
 
-    require(lastWavedAt[msg.sender] + 15 minutes < block.timestamp,
-	    "Wait 15m");
+    require(lastWavedAt[msg.sender] + 30 seconds < block.timestamp,
+	    "Wait 30sec");
 
     lastWavedAt[msg.sender] = block.timestamp;
     
@@ -53,7 +53,7 @@ contract WavePortal {
 
     if (randomNum < 50) {
       console.log("waver won!");
-      uint256 prizeAmount = 0.0001 ether;
+      uint256 prizeAmount = 0.001 ether;
       require(
 	      prizeAmount <= address(this).balance,
 	      "Insufficient balance in WaveContract"
