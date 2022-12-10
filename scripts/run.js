@@ -26,6 +26,10 @@ const main = async () => {
     let waveTxn = await waveContract.wave("Some message");
     await waveTxn.wait();  // wait for txn to be mined
 
+    // send another wave
+    waveTxn = await waveContract.wave("Another message");
+    await waveTxn.wait();  // wait for txn to be mined
+
     // See what happened to balance
     contractBalance = await hre.ethers.provider.getBalance(
 	waveContract.address

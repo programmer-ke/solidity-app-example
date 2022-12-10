@@ -6,6 +6,7 @@ import "hardhat/console.sol";
 
 contract WavePortal {
   uint256 totalWaves;
+  uint256 private randomNum;
 
   // Define event that can be subscribed to
   event NewWave(address indexed from, uint256 timestamp, string message);
@@ -19,12 +20,24 @@ contract WavePortal {
 
   // hold a list of waves
   Wave[] waves;
+
+  // hold a mapping of addresses to timestamps
+  mapping(address => uint256) public lastWavedAt;
     
   constructor () payable {
     console.log("Let's print some money!");
+    // set initial seed
+    randomNum = (block.difficulty + block.timestamp) % 100;
+    console.log("Random seed", randomNum);
   }
 
   function wave(string memory _message) public {
+
+    require(lastWavedAt[msg.sender] + 15 minutes < block.timestamp,
+	    "Wait 15m");
+
+    lastWavedAt[msg.sender] = block.timestamp;
+    
     totalWaves += 1;
     console.log("%s has waved with message %s", msg.sender, _message);
 
@@ -34,13 +47,20 @@ contract WavePortal {
     // trigger a NewWave event
     emit NewWave(msg.sender, block.timestamp, _message);
 
-    uint256 prizeAmount = 0.0001 ether;
-    require(
-	    prizeAmount <= address(this).balance,
-	    "Insufficient balance in WaveContract"
-    );
-    (bool success, ) = (msg.sender).call{value: prizeAmount}("");
-    require(success, "Failed to send money from contract to sender");
+    // generate random and award if on the winning half
+    randomNum = (block.difficulty + block.timestamp + randomNum) % 100;
+    console.log("Random number generated", randomNum);
+
+    if (randomNum < 50) {
+      console.log("waver won!");
+      uint256 prizeAmount = 0.0001 ether;
+      require(
+	      prizeAmount <= address(this).balance,
+	      "Insufficient balance in WaveContract"
+	      );
+      (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+      require(success, "Failed to send money from contract to sender");
+    }
   }
 
   // A function that returns all the waves
